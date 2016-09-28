@@ -74,21 +74,18 @@ h = a3;
 
 for k = 1:num_labels
   h_k = h(:,k);
-
   J = J + ((1/m) * ((-1 * (y == k))' * log(h_k) - (1 - (y == k))' * log(1 - h_k)));
 end;
 
-unbiased_Theta1 = [zeros(1, input_layer_size); Theta1(:,2:end)];
-unbiased_Theta2 = [zeros(1, hidden_layer_size); Theta2(:,2:end)];
+% "unbaised" means the theta for the bias term is set to 0
+unbiased_Theta1 = [zeros(hidden_layer_size, 1), Theta1(:,2:end)];
+unbiased_Theta2 = [zeros(num_labels, 1), Theta2(:,2:end)];
 unrolled_Theta1 = unbiased_Theta1(:);
 unrolled_Theta2 = unbiased_Theta2(:);
 
 regularizationPenalty = (lambda / (2 * m)) * ((unrolled_Theta1' * unrolled_Theta1) + (unrolled_Theta2' * unrolled_Theta2));
 J = J + regularizationPenalty;
 
-% for t = 1:m
-%
-% end;
 delta_3 = zeros(m, num_labels);
 
 for k = 1:num_labels
@@ -96,19 +93,13 @@ for k = 1:num_labels
   delta_3(:,k) = h_k - (y == k);
 end;
 
-% size(Theta2)
-% size(delta_3)
-% size(a2)
+delta_2 = (delta_3 * Theta2(:, 2:end)) .* sigmoidGradient(z2);
 
-delta_2 = Theta2' * delta_3' .* sigmoidGradient(z2);
+Delta_2 = delta_3' * a2;
+Delta_1 = delta_2' * a1;
 
-Delta_2 = delta_3 * a3';
-
-delta_2 = delta_2(:, 2:end);
-Delta_1 = delta_2 * a2(:, 2:end)';
-
-Theta1_grad = Delta_1 ./ m;
-Theta2_grad = Delta_2 ./ m;
+Theta1_grad = ((1/m) * Delta_1) + ((lambda/m) * unbiased_Theta1);
+Theta2_grad = ((1/m) * Delta_2) + ((lambda/m) * unbiased_Theta2);
 
 
 % -------------------------------------------------------------

@@ -72,6 +72,9 @@ a3 = sigmoid(z3);
 
 h = a3;
 
+I = eye(num_labels);
+y_classified = I(y,:);
+
 for k = 1:num_labels
   h_k = h(:,k);
   J = J + ((1/m) * ((-1 * (y == k))' * log(h_k) - (1 - (y == k))' * log(1 - h_k)));
@@ -86,12 +89,7 @@ unrolled_Theta2 = unbiased_Theta2(:);
 regularizationPenalty = (lambda / (2 * m)) * ((unrolled_Theta1' * unrolled_Theta1) + (unrolled_Theta2' * unrolled_Theta2));
 J = J + regularizationPenalty;
 
-delta_3 = zeros(m, num_labels);
-
-for k = 1:num_labels
-  h_k = h(:,k);
-  delta_3(:,k) = h_k - (y == k);
-end;
+delta_3 = h - y_classified;
 
 delta_2 = (delta_3 * Theta2(:, 2:end)) .* sigmoidGradient(z2);
 

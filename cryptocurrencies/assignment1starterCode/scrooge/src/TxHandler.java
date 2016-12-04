@@ -26,8 +26,6 @@ public class TxHandler {
     boolean areAllOutputsInPool =
         tx.getInputs().stream().allMatch(input -> pool.contains(new UTXO(input.prevTxHash, input.outputIndex)));
 
-    System.out.println("areAllOutputsInPool: " + areAllOutputsInPool);
-
     // (2)
     boolean areSignaturesValid = true;
     for (int i = 0; i < tx.getInputs().size(); i++) {
@@ -35,7 +33,6 @@ public class TxHandler {
         areSignaturesValid = false;
       }
     }
-    System.out.println("areSignaturesValid: " + areSignaturesValid);
 
     // (3)
     List<UTXO> claimedUTXOs =
@@ -45,12 +42,10 @@ public class TxHandler {
             .collect(Collectors.toList());
     Set<UTXO> uniqueClaimedUTXOs = new HashSet<>(claimedUTXOs);
     boolean areUTXOsClaimedAtMostOnce = claimedUTXOs.size() == uniqueClaimedUTXOs.size();
-    System.out.println("areUTXOsClaimedAtMostOnce " + areUTXOsClaimedAtMostOnce);
 
     // (4)
     boolean areAllOutputValuesNonNegative =
         tx.getOutputs().stream().allMatch(output -> output.value >= 0);
-    System.out.println("areAllOutputValuesNonNegative: " + areAllOutputValuesNonNegative);
 
     // (5)
     double outputsTotal = tx.getOutputs().stream().mapToDouble(output -> output.value).sum();
@@ -63,8 +58,7 @@ public class TxHandler {
             .sum();
     boolean areInputValuesGreaterOrEqualToOutputValues = inputsTotal >= outputsTotal;
 
-    System.out.println("areInputValuesGreaterOrEqualToOutputValues: " + areInputValuesGreaterOrEqualToOutputValues);
-
+    // TODO: ought to evaluate these lazily
     return areAllOutputsInPool
         && areSignaturesValid
         && areUTXOsClaimedAtMostOnce
